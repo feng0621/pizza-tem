@@ -2,7 +2,7 @@
 (() => {
 const $ = s => document.querySelector(s);
 const STORES = window.TF_STORES, SL = window.TF_SLOTS;
-const WK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+const { tr, WEEK, dayLabel, shortDate, path } = window.TF;
 const MAX = { jingan: 6, cortile: 10 };
 const form = $('#rs-form'), days = $('#rs-days'), times = $('#rs-times'), areas = $('#rs-areas');
 const nOut = $('#rs-n'), partyNote = $('#rs-party-note'), timesNote = $('#rs-times-note'), sum = $('#rs-sum'), msg = $('#rs-msg');
@@ -28,7 +28,7 @@ function renderDays() {
   const lastSlot = SL[s.id].slots.map(toMin).reduce((a, b) => Math.max(a, b), 0);
   for (let i = 0; i < 14; i++) {
     const d = shanghaiDate(i), closed = !s.hours[d.getDay()].length, over = i === 0 && !closed && nowMin() + 30 >= lastSlot;
-    html += `<input type="radio" name="day" id="day-${i}" value="${i}"${closed || over ? ' disabled' : ''}><label for="day-${i}">${d.getMonth() + 1}/${d.getDate()}<small>${closed ? '休息' : over ? '今天已截止' : i === 0 ? '今天' : i === 1 ? '明天' : WK[d.getDay()]}</small></label>`;
+    html += `<input type="radio" name="day" id="day-${i}" value="${i}"${closed || over ? ' disabled' : ''}><label for="day-${i}">${shortDate(d)}<small>${closed ? tr('休息', 'Closed') : over ? tr('今天已截止', 'Closed today') : i === 0 ? tr('今天', 'Today') : i === 1 ? tr('明天', 'Tomorrow') : WEEK[d.getDay()]}</small></label>`;
   }
   days.innerHTML = html;
   const keep = prev && !$('#day-' + prev).disabled ? $('#day-' + prev) : days.querySelector('input:not(:disabled)');
@@ -41,17 +41,17 @@ function renderTimes() {
   times.innerHTML = slots.map((t, i) => {
     const past = toMin(t) <= late;
     const full = !past && ((i * 7 + di * 3 + n) % 5 === 0 || (n >= 6 && i % 2 === 1));
-    return `<input type="radio" name="time" id="tm-${i}" value="${t}"${past || full ? ' disabled' : ''}><label for="tm-${i}">${t}${full ? '<small>已满</small>' : ''}</label>`;
+    return `<input type="radio" name="time" id="tm-${i}" value="${t}"${past || full ? ' disabled' : ''}><label for="tm-${i}">${t}${full ? `<small>${tr('已满', 'Full')}</small>` : ''}</label>`;
   }).join('');
   const keep = [...times.querySelectorAll('input:not(:disabled)')];
   (keep.find(i => i.value === prev) || keep.find(i => i.value >= '19:00') || keep[0] || {}).checked = true;
-  timesNote.textContent = keep.length ? '' : '这一天已经订满了，换一天试试。';
+  timesNote.textContent = keep.length ? '' : tr('这一天已经订满了，换一天试试。', 'This day is fully booked. Please try another.');
 }
 function renderAreas() {
   const prev = checked('area')?.value, s = SL[storeId()];
   areas.innerHTML = s.areas.map((a, i) => {
-    const off = a.startsWith('吧台') && n > 2;
-    return `<input type="radio" name="area" id="ar-${i}" value="${a}"${off ? ' disabled' : ''}><label for="ar-${i}">${a}${off ? '<small>最多 2 位</small>' : ''}</label>`;
+    const off = /^(吧台|Bar)/.test(a) && n > 2;
+    return `<input type="radio" name="area" id="ar-${i}" value="${a}"${off ? ' disabled' : ''}><label for="ar-${i}">${a}${off ? `<small>${tr('最多 2 位', 'Up to 2')}</small>` : ''}</label>`;
   }).join('');
   const ok = [...areas.querySelectorAll('input:not(:disabled)')];
   (ok.find(i => i.value === prev) || ok[0]).checked = true;
@@ -65,8 +65,8 @@ function renderSide() {
 function renderSummary() {
   const s = SL[storeId()], d = shanghaiDate(+checked('day').value), t = checked('time');
   const max = MAX[storeId()];
-  partyNote.innerHTML = n >= max ? (storeId() === 'jingan' ? '静安店最多 6 位，人多请选庭院店' : '10 位以上请看<a href="/events#ev-privata">包场</a>') : '';
-  sum.innerHTML = `<p class="caps kicker">你的预订</p><p class="rs-line">${s.it} · ${s.cn}</p><p class="rs-big">${d.getMonth() + 1} 月 ${d.getDate()} 日 ${WK[d.getDay()]} · ${t ? t.value : '—'} · ${n} 位</p><p class="muted">${checked('area')?.value || ''}</p>`;
+  partyNote.innerHTML = n >= max ? (storeId() === 'jingan' ? tr('静安店最多 6 位，人多请选庭院店', "Jing'an seats up to 6. For more, choose The Courtyard") : tr(`10 位以上请看<a href="${path('/events#ev-privata')}">包场</a>`, `For more than 10, see <a href="${path('/events#ev-privata')}">private dining</a>`)) : '';
+  sum.innerHTML = `<p class="caps kicker">${tr('你的预订', 'Your booking')}</p><p class="rs-line">${s.it} · ${s.label}</p><p class="rs-big">${dayLabel(d)} · ${t ? t.value : '—'} · ${tr(`${n} 位`, `${n} ${n === 1 ? 'guest' : 'guests'}`)}</p><p class="muted">${checked('area')?.value || ''}</p>`;
   form.querySelector('button[type="submit"]').disabled = !t;
 }
 function renderAll(full = true) {
@@ -85,14 +85,14 @@ $('#rs-plus').addEventListener('click', () => { n = Math.min(MAX[storeId()], n +
 form.addEventListener('submit', e => {
   e.preventDefault();
   const name = $('#rs-name'), phone = $('#rs-phone');
-  if (!name.value.trim()) { msg.className = 'msg err'; msg.textContent = '请留一个称呼，到店时报给我们。'; name.focus(); return; }
-  if (!/^[\d\s+-]{7,}$/.test(phone.value.trim())) { msg.className = 'msg err'; msg.textContent = '手机号好像不完整，再检查一下。'; phone.focus(); return; }
+  if (!name.value.trim()) { msg.className = 'msg err'; msg.textContent = tr('请留一个称呼，到店时报给我们。', 'Please leave a name to give us when you arrive.'); name.focus(); return; }
+  if (!/^[\d\s+-]{7,}$/.test(phone.value.trim())) { msg.className = 'msg err'; msg.textContent = tr('手机号好像不完整，再检查一下。', 'That mobile number looks incomplete. Please check it.'); phone.focus(); return; }
   const s = SL[storeId()], d = shanghaiDate(+checked('day').value), code = 'TF-' + Math.random().toString(36).slice(2, 6).toUpperCase();
   $('#rs-ticket').innerHTML = `<p class="tk-code">${code}</p><dl class="kv">
-    <dt>门店</dt><dd>${s.it} · ${s.cn}</dd><dt>地址</dt><dd>${s.address}</dd>
-    <dt>时间</dt><dd>${d.getMonth() + 1} 月 ${d.getDate()} 日 ${WK[d.getDay()]} ${checked('time').value}</dd>
-    <dt>人数</dt><dd>${n} 位 · ${checked('area').value}</dd>
-    <dt>称呼</dt><dd>${name.value.trim().replace(/[<>&]/g, '')}</dd></dl>`;
+    <dt>${tr('门店', 'Restaurant')}</dt><dd>${s.it} · ${s.label}</dd><dt>${tr('地址', 'Address')}</dt><dd>${s.address}</dd>
+    <dt>${tr('时间', 'Time')}</dt><dd>${dayLabel(d)} ${checked('time').value}</dd>
+    <dt>${tr('人数', 'Party')}</dt><dd>${tr(`${n} 位`, `${n} ${n === 1 ? 'guest' : 'guests'}`)} · ${checked('area').value}</dd>
+    <dt>${tr('称呼', 'Name')}</dt><dd>${name.value.trim().replace(/[<>&]/g, '')}</dd></dl>`;
   form.hidden = true; const done = $('#rs-done'); done.hidden = false; done.focus();
   const y = done.getBoundingClientRect().top + scrollY - 100; if (window.TF && TF.scrollTo) TF.scrollTo(y); else scrollTo({ top: y, behavior: 'smooth' });
 });

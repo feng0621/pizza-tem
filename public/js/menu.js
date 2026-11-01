@@ -2,6 +2,7 @@
 (() => {
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const MENU = window.TF_MENU, SIZES = window.TF_SIZES;
+const { tr } = window.TF;
 const yuan = n => `¥${n}`;
 
 /* ---------- photo peek ---------- */
@@ -10,7 +11,7 @@ function peek(id) {
   const img = peekImgs.find(i => i.dataset.for === id);
   if (!img) return;
   peekImgs.forEach(i => i.classList.toggle('on', i === img));
-  peekIt.textContent = MENU[id].it; peekCn.textContent = MENU[id].cn;
+  peekIt.textContent = MENU[id].it; peekCn.textContent = MENU[id].label;
 }
 for (const li of $$('.dish')) {
   li.addEventListener('pointerenter', () => peek(li.dataset.id));
@@ -50,7 +51,7 @@ for (const form of $$('.add-form')) {
     const sz = size(), line = cart.find(l => l.id === id && l.size === sz);
     if (line) line.q = Math.min(20, line.q + q); else cart.push({ id, size: sz, q });
     save(); renderCart();
-    msg.textContent = `已加入订单：${q} 份 ${MENU[id].cn}${sz ? ` · ${sz} cm` : ''}`;
+    msg.textContent = tr(`已加入订单：${q} 份 ${MENU[id].label}${sz ? ` · ${sz} cm` : ''}`, `Added to your order: ${q} × ${MENU[id].it}${sz ? ` · ${sz} cm` : ''}`);
     q = 1; refresh();
   });
   form.closest('dialog').addEventListener('close', () => { msg.textContent = ''; });
@@ -70,16 +71,16 @@ function renderCart() {
   $('#cart-count').textContent = t.count; $('#cart-total').textContent = yuan(t.total);
   empty.hidden = cart.length > 0;
   lines.innerHTML = cart.map((l, k) => `<li>
-      <span class="cl-n"><b>${MENU[l.id].it}</b><span>${MENU[l.id].cn}${l.size ? ` · ${l.size} cm` : ''}</span></span>
-      <span class="stepper sm"><button type="button" data-line="${k}" data-d="-1" aria-label="减少一份 ${MENU[l.id].cn}">−</button><output>${l.q}</output><button type="button" data-line="${k}" data-d="1" aria-label="增加一份 ${MENU[l.id].cn}">+</button></span>
+      <span class="cl-n"><b>${MENU[l.id].it}</b><span>${MENU[l.id].label}${l.size ? ` · ${l.size} cm` : ''}</span></span>
+      <span class="stepper sm"><button type="button" data-line="${k}" data-d="-1" aria-label="${tr('减少一份', 'One less')} ${MENU[l.id].label}">−</button><output>${l.q}</output><button type="button" data-line="${k}" data-d="1" aria-label="${tr('增加一份', 'One more')} ${MENU[l.id].label}">+</button></span>
       <span class="cl-p num">${yuan(unit(l.id, l.size) * l.q)}</span>
     </li>`).join('');
-  const rows = [['小计', yuan(t.sub)]];
-  if (t.out) rows.push(['配送费', t.fee ? yuan(t.fee) : (t.sub ? '满 ¥150 免' : '—')]);
+  const rows = [[tr('小计', 'Subtotal'), yuan(t.sub)]];
+  if (t.out) rows.push([tr('配送费', 'Delivery'), t.fee ? yuan(t.fee) : (t.sub ? tr('满 ¥150 免', 'Free over ¥150') : '—')]);
   const mins = t.out ? 35 + Math.max(0, t.count - 2) * 2 : 15 + Math.max(0, t.count - 2) * 2;
   sum.innerHTML = rows.map(([a, b]) => `<p><span>${a}</span><span class="num">${b}</span></p>`).join('') +
-    `<p class="tot"><span>合计</span><b class="num">${yuan(t.total)}</b></p>` +
-    (t.count ? `<p class="eta">${t.out ? `约 ${mins} 分钟送到` : `约 ${mins} 分钟后可以来取`}</p>` : '');
+    `<p class="tot"><span>${tr('合计', 'Total')}</span><b class="num">${yuan(t.total)}</b></p>` +
+    (t.count ? `<p class="eta">${t.out ? tr(`约 ${mins} 分钟送到`, `Delivered in about ${mins} minutes`) : tr(`约 ${mins} 分钟后可以来取`, `Ready for pickup in about ${mins} minutes`)}</p>` : '');
   $('#cart-submit').disabled = t.count === 0;
 }
 lines.addEventListener('click', e => {
@@ -95,7 +96,7 @@ cform.addEventListener('submit', e => {
   if (!cart.length) return;
   const t = totals(), no = 'TF' + String(Date.now()).slice(-6);
   cmsg.className = 'msg ok';
-  cmsg.textContent = `订单 ${no} 已提交，合计 ${yuan(t.total)}。这是演示网站，订单不会真的发出。`;
+  cmsg.textContent = tr(`订单 ${no} 已提交，合计 ${yuan(t.total)}。这是演示网站，订单不会真的发出。`, `Order ${no} placed, total ${yuan(t.total)}. This is a demo site, so no order will actually be sent.`);
   cart = []; save(); renderCart();
 });
 renderCart();

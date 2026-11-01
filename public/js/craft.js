@@ -6,6 +6,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const inv = (a, b, x) => clamp((x - a) / (b - a));
 const sm = t => t * t * (3 - 2 * t);
 const $ = s => document.querySelector(s);
+const { tr } = window.TF;
 const pad = n => String(n).padStart(2, '0');
 const mqMobile = matchMedia('(max-width: 720px)');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -18,12 +19,12 @@ const LAYERS = [
   ['#v-p5a', 4, 4.3], ['#v-p5b', 4.3, 4.78], ['#v-p5c', 4.78, 5], ['#v-p6', 5, 6], ['#v-p7', 6, 9],
 ].map(([s, a, b]) => ({ el: $(s), video: $(s), a, b }));
 const STATIONS = [
-  { t: 0, name: '工位 01', loc: '面案', day: '10-19', h: 8, m: 12 },
-  { t: 1, name: '工位 02', loc: '冷藏醒发柜 · 4°C', day: '10-19', h: 9, m: 0 },
-  { t: 2, name: '工位 03', loc: '披萨台', day: '10-22', h: 19, m: 41 },
-  { t: 4, name: '工位 04', loc: '木柴炉 · 3 号炉膛', day: '10-22', h: 19, m: 42 },
-  { t: 5, name: '工位 05', loc: '出餐口', day: '10-22', h: 19, m: 43 },
-  { t: 6, name: '3 号桌', loc: '堂食', day: '10-22', h: 19, m: 44 },
+  { t: 0, name: tr('工位 01', 'Station 01'), loc: tr('面案', 'Dough bench'), day: '10-19', h: 8, m: 12 },
+  { t: 1, name: tr('工位 02', 'Station 02'), loc: tr('冷藏醒发柜 · 4°C', 'Proving cabinet · 4°C'), day: '10-19', h: 9, m: 0 },
+  { t: 2, name: tr('工位 03', 'Station 03'), loc: tr('披萨台', 'Pizza bench'), day: '10-22', h: 19, m: 41 },
+  { t: 4, name: tr('工位 04', 'Station 04'), loc: tr('木柴炉 · 3 号炉膛', 'Wood oven · chamber 3'), day: '10-22', h: 19, m: 42 },
+  { t: 5, name: tr('工位 05', 'Station 05'), loc: tr('出餐口', 'The pass'), day: '10-22', h: 19, m: 43 },
+  { t: 6, name: tr('3 号桌', 'Table 3'), loc: tr('堂食', 'Dining room'), day: '10-22', h: 19, m: 44 },
 ];
 let primed = false;
 function prime() { // iOS only paints seeks after the element has played once
@@ -90,9 +91,9 @@ function updateOverlays(T, activeVideo) {
   crust.setAttribute('d', crustPath(sm(inv(2.1, 2.85, T))));
   const temp = Math.round(lerp(380, 485, sm(inv(4.02, 4.3, T)))), bake = sm(inv(4.3, 4.95, T)), secs = Math.round(bake * 90);
   setText(gTemp, `${T < 4.02 ? 380 : temp}°C`); gArc.setAttribute('stroke-dasharray', `${(temp / 500 * 100).toFixed(1)} 100`);
-  bakeBar.style.setProperty('--v', bake.toFixed(3)); setText(bakeT, `已烤 ${secs}″`);
+  bakeBar.style.setProperty('--v', bake.toFixed(3)); setText(bakeT, tr(`已烤 ${secs}″`, `Baked ${secs}″`));
   turn1.classList.toggle('ok', secs >= 30); turn2.classList.toggle('ok', secs >= 60);
-  setText(turn1, secs >= 30 ? '转饼 ✓' : '转饼 30″'); setText(turn2, secs >= 60 ? '转饼 ✓' : '转饼 60″');
+  setText(turn1, secs >= 30 ? tr('转饼 ✓', 'Turned ✓') : tr('转饼 30″', 'Turn 30″')); setText(turn2, secs >= 60 ? tr('转饼 ✓', 'Turned ✓') : tr('转饼 60″', 'Turn 60″'));
   heat.style.opacity = (Math.min(inv(3.96, 4.1, T), 1 - inv(4.9, 5.08, T)) * .9).toFixed(3);
 }
 

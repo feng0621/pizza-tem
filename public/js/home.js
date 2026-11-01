@@ -2,6 +2,7 @@
 // on cream and then settle back as a plated Margherita. Everything is driven by scroll progress p (0–1).
 (() => {
 const $ = s => document.querySelector(s);
+const { tr } = window.TF;
 const clamp = (x, a = 0, b = 1) => x < a ? a : x > b ? b : x;
 const lerp = (a, b, t) => a + (b - a) * t;
 const inv = (a, b, x) => clamp((x - a) / (b - a));
@@ -14,16 +15,16 @@ if (!story) return;
 
 /* ---------- orbiting ingredients: radius r and size s are in stage units (1u = min(W, 1.5H)/100) ---------- */
 const ITEMS = [
-  { src: 'mozz-0', s: 17, r: 31, a: 10, h: 2, label: ['Fior di latte', '阿杰罗拉鲜马苏里拉'] },
-  { src: 'tomato-half', s: 17, r: 34, a: 75, h: -6, label: ['Pomodoro San Marzano', '圣马扎诺番茄 · DOP'] },
-  { src: 'basil-sprig-b', s: 22, r: 33, a: 140, h: -10, label: ['Basilico', '新鲜罗勒，出炉前才放'] },
+  { src: 'mozz-0', s: 17, r: 31, a: 10, h: 2, label: ['Fior di latte', tr('阿杰罗拉鲜马苏里拉', 'Fresh mozzarella from Agerola')] },
+  { src: 'tomato-half', s: 17, r: 34, a: 75, h: -6, label: ['Pomodoro San Marzano', tr('圣马扎诺番茄 · DOP', 'San Marzano tomato · DOP')] },
+  { src: 'basil-sprig-b', s: 22, r: 33, a: 140, h: -10, label: ['Basilico', tr('新鲜罗勒，出炉前才放', 'Fresh basil, added just before serving')] },
   { src: 'mozz-2', s: 14, r: 29, a: 200, h: 8 },
   { src: 'tomato-a', s: 11.5, r: 37, a: 250, h: 10 },
   { src: 'basil-sprig-a', s: 19, r: 30, a: 305, h: -4 },
   { src: 'tomato-b', s: 10, r: 22, a: 40, h: -18 },
   { src: 'mozz-4', s: 12, r: 24, a: 225, h: -16 },
   { src: 'mozz-1', s: 11, r: 40, a: 340, h: 14 },
-  { drop: true, s: 2.6, r: 19, a: 110, h: 14, label: ['Olio extravergine', '特级初榨橄榄油 · 最后淋一圈'] },
+  { drop: true, s: 2.6, r: 19, a: 110, h: 14, label: ['Olio extravergine', tr('特级初榨橄榄油 · 最后淋一圈', 'Extra virgin olive oil · a final ring')] },
   { drop: true, s: 2.0, r: 26, a: 175, h: -2 },
   { drop: true, s: 1.7, r: 21, a: 290, h: 6 },
 ];
@@ -43,7 +44,7 @@ for (const it of ITEMS) {
   el.setAttribute('aria-hidden', 'true'); orbit.appendChild(el); it.el = el;
   if (it.label) Object.assign(it, makeLabel(it.label));
 }
-const flourLabel = makeLabel(['Farina tipo 00', '00 号软麦粉 · 含水 65%']);
+const flourLabel = makeLabel(['Farina tipo 00', tr('00 号软麦粉 · 含水 65%', 'Soft 00 flour · 65% hydration')]);
 
 const stage = $('#stage'), hero = $('#o-hero'), plate = $('#o-plate'), flour = $('#o-flour'), flourA = $('#o-flourA'), crema = $('#crema'), glow = $('#glow');
 const txtA = $('#txtA'), txtB = $('#txtB'), txtC = $('#txtC'), ctaC = $('#ctaC'), side = $('#side'), cue = $('#cue'), dots = [...document.querySelectorAll('.dots i')];

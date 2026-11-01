@@ -9,6 +9,7 @@ const navH = () => document.getElementById('nav').offsetHeight;
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 const outside = el => !el.closest('dialog, .stage, #stage, .mnav');
 const TF = window.TF || (window.TF = {});
+const { tr } = TF;
 
 /* ---------- inertia scrolling ---------- */
 let lenis = null;
@@ -130,7 +131,7 @@ if (fine && !reduced) {
   body.appendChild(c);
   const label = c.firstChild;
   let x = -100, y = -100, cx = x, cy = y, shown = false;
-  const LABELS = [['.dish-a', '详情'], ['.team', '故事'], ['[data-open]', '打开'], ['.card, .visit-card, .lead-post, .nx', '查看'], ['.kitchen', '进入厨房']];
+  const LABELS = [['.dish-a', tr('详情', 'Details')], ['.team', tr('故事', 'Story')], ['[data-open]', tr('打开', 'Open')], ['.card, .visit-card, .lead-post, .nx', tr('查看', 'View')], ['.kitchen', tr('进入厨房', 'Kitchen')]];
   addEventListener('pointermove', e => {
     x = e.clientX; y = e.clientY;
     if (!shown) { shown = true; cx = x; cy = y; c.classList.add('on'); }
@@ -179,7 +180,7 @@ if (fine && !reduced) {
 const clock = document.getElementById('sh-clock');
 function tickClock() {
   const t = new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date());
-  if (clock) clock.textContent = `上海 ${t}`;
+  if (clock) clock.textContent = tr(`上海 ${t}`, `Shanghai ${t}`);
 }
 if (clock) { tickClock(); setInterval(tickClock, 15000); }
 if (TF.shanghaiNow) {

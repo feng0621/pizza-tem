@@ -108,6 +108,12 @@ p{margin:0}
 .links a::after{content:"";position:absolute;left:0;right:.24em;bottom:2px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
 .links a:hover::after,.links a[aria-current]::after{transform:scaleX(1)}
 .nav-cta{padding:11px 20px}
+.lang{display:flex;align-items:center;gap:6px;flex:none;font:500 11px/1 var(--f-sans);letter-spacing:.1em}
+.lang a{color:inherit;text-decoration:none;opacity:.6;padding:8px 2px;transition:opacity .3s}
+.lang a:hover,.lang a[aria-current]{opacity:1}
+.lang i{font-style:normal;opacity:.35}
+.lang a[lang="zh-CN"]{letter-spacing:.04em}
+.foot-cols .lang,.mnav-foot .lang{margin-top:6px}
 .burger{display:none;margin-left:auto;width:44px;height:44px;border:1px solid currentColor;border-radius:50%;background:transparent;cursor:pointer;position:relative;flex:none}
 .burger span{position:absolute;left:13px;right:13px;height:1.5px;background:currentColor;transition:transform .3s,top .3s}
 .burger span:first-child{top:17px}.burger span:last-child{top:25px}
@@ -123,8 +129,10 @@ p{margin:0}
 .mnav-foot b{display:block;color:var(--cream-ink);font-weight:500}
 body.mnav-open{overflow:hidden}
 body.mnav-open .nav{--nfg:var(--cream-ink);background:transparent;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
-@media (max-width:1020px){.links{display:none}.burger{display:block}.nav-cta{margin-left:auto}.nav-cta+.burger{margin-left:0}}
-@media (max-width:420px){.nav-cta{display:none}.burger{margin-left:auto}.brand small{font-size:9.5px}}
+@media (max-width:1020px){.links{display:none}.burger{display:block}.nav>.lang{margin-left:auto}.nav-cta+.burger{margin-left:0}}
+@media (max-width:560px){.nav-cta{display:none}}
+@media (max-width:420px){.brand small{font-size:9.5px}}
+@media (max-width:359px){.nav>.lang{display:none}.nav .burger{margin-left:auto}}
 
 /* ---------- page hero ---------- */
 .phero{background:var(--rosso);color:var(--cream-ink);padding-top:calc(var(--nav-h) + clamp(64px,12vh,150px));padding-bottom:clamp(72px,12vh,150px);position:relative;overflow:hidden}
@@ -348,3 +356,17 @@ html.lenis,html.lenis body{height:auto}
 .kv dd.today{font-weight:500}
 .read-bar{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + var(--nav-h));z-index:49;height:2px;background:var(--oro);transform:scaleX(0);transform-origin:0 50%;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.lines .ln-i{transform:none}.mq-track{animation:none}}
+
+/* ---------- English pages: Latin faces and tighter tracking in place of the Chinese settings ---------- */
+html[lang="en"]{--f-sans:"Jost",system-ui,sans-serif;--f-cn:"Jost",system-ui,"PingFang SC","Microsoft YaHei",sans-serif;--f-cn-serif:"Bodoni Moda",Didot,"Bodoni 72","Times New Roman",serif}
+html[lang="en"] body{line-height:1.6}
+html[lang="en"] .lede{line-height:1.6;max-width:36em}
+html[lang="en"] .links a{letter-spacing:.06em;font-size:13.5px}
+html[lang="en"] .links a::after{right:0}
+html[lang="en"] .cn-h{letter-spacing:0}
+html[lang="en"] .card .cn{letter-spacing:.01em;font-weight:500}
+html[lang="en"] .tag{letter-spacing:.04em}
+html[lang="en"] .mnav nav span{letter-spacing:.04em}
+html[lang="en"] .faq summary{font-size:19px}
+html[lang="en"] .demo-note::before{content:"Demo"}
+html[lang="en"] .cursor span{letter-spacing:.06em}

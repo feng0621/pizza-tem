@@ -1,6 +1,6 @@
 # Tre Fiamme 三分焰 — Neapolitan pizzeria website
 
-A complete restaurant website template for a fictional Neapolitan pizzeria in Shanghai. It is a static site with zero dependencies: a small Node build script (`build.mjs`) turns content in `src/` into plain HTML in `dist/`, and Vercel deploys that output.
+A complete restaurant website template for a fictional Neapolitan pizzeria in Shanghai. It is a static site with zero dependencies: a small Node build script (`build.mjs`) turns content in `src/` into plain HTML in `dist/`, and Vercel deploys that output. English is the default language at the bare routes; the Chinese version of every page lives under `/zh`.
 
 ## Pages
 
@@ -26,11 +26,12 @@ This builds into `dist/` and serves it at http://localhost:4321 with clean URLs 
 
 ## Edit content
 
-- **Text, menu, prices, stores, team, events, articles:** `src/data.mjs`
-- **Page markup:** `src/pages/*.mjs` (each exports `pages()` returning one or more pages)
+- **Chinese text and shared facts (prices, hours, photos, tags):** `src/data.mjs`
+- **English text:** `src/data.en.mjs`, overlaid by id in `src/content.mjs`
+- **Page markup:** `src/pages/*.mjs` (each exports `pages(lang)` returning one or more pages; UI strings sit inline as `tr('中文', 'English')`)
 - **Shared head, navigation, footer:** `src/layout.mjs`
 - **Styles:** `public/css/site.css` (shared), `home.css`, `craft.css`, `pages.css`
-- **Behaviour:** `public/js/site.js` (nav, dialogs, store hours), `fx.js` (motion layer), plus one script per interactive page
+- **Behaviour:** `public/js/site.js` (nav, dialogs, store hours, the `TF.tr` string helper), `fx.js` (motion layer), plus one script per interactive page
 - **Photos:** `public/media/photos/<name>.webp` (1600 px) and `<name>-sm.webp` (800 px); register new ones in `src/photos.json`
 
 ## Deploy

@@ -2,6 +2,9 @@
 // newsletter (demo) and <dialog> open/close with #hash deep links.
 (() => {
 const root = document.documentElement, nav = document.getElementById('nav');
+const zh = root.lang === 'zh-CN';
+const tr = (cn, en) => zh ? cn : en;
+const WEEK = tr(['周日', '周一', '周二', '周三', '周四', '周五', '周六'], ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 
 /* ---------- nav tone ---------- */
 let queued = false;
@@ -18,13 +21,21 @@ const queue = () => { if (!queued) { queued = true; requestAnimationFrame(navTon
 addEventListener('scroll', queue, { passive: true });
 addEventListener('resize', queue);
 navTone();
-window.TF = { navTone };
+window.TF = {
+  navTone, tr, WEEK,
+  path: p => zh ? '/zh' + p : p,
+  shortDate: d => zh ? `${d.getMonth() + 1}/${d.getDate()}` : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+  dayLabel: d => zh ? `${d.getMonth() + 1} 月 ${d.getDate()} 日 ${WEEK[d.getDay()]}` : d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+};
+
+/* ---------- language switch keeps your place on the page ---------- */
+for (const a of document.querySelectorAll('.lang a')) a.addEventListener('click', () => { a.href = a.pathname + location.search + location.hash; });
 
 /* ---------- mobile menu ---------- */
 const burger = nav.querySelector('.burger'), mnav = document.getElementById('mnav');
 function setMenu(open) {
   burger.setAttribute('aria-expanded', String(open));
-  burger.setAttribute('aria-label', open ? '关闭导航' : '打开导航');
+  burger.setAttribute('aria-label', open ? tr('关闭导航', 'Close navigation') : tr('打开导航', 'Open navigation'));
   mnav.hidden = !open;
   document.body.classList.toggle('mnav-open', open);
   navTone();
@@ -34,7 +45,6 @@ mnav.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false);
 addEventListener('keydown', e => { if (e.key === 'Escape' && !mnav.hidden) { setMenu(false); burger.focus(); } });
 
 /* ---------- open now (store time is Shanghai time) ---------- */
-const WK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 function shanghaiNow() {
   const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Shanghai', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false })
     .formatToParts(new Date()).map(p => [p.type, p.value]));
@@ -43,12 +53,12 @@ function shanghaiNow() {
 const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
 function storeStatus(store) {
   const { day, mins } = shanghaiNow();
-  for (const [a, b] of store.hours[day]) if (mins >= toMin(a) && mins < toMin(b)) return { open: true, text: `营业中 · ${b} 打烊` };
+  for (const [a, b] of store.hours[day]) if (mins >= toMin(a) && mins < toMin(b)) return { open: true, text: tr(`营业中 · ${b} 打烊`, `Open · closes ${b}`) };
   for (let k = 0; k < 8; k++) {
     const d = (day + k) % 7;
-    for (const [a] of store.hours[d]) if (k > 0 || toMin(a) > mins) return { open: false, text: `已打烊 · ${k === 0 ? '今天' : k === 1 ? '明天' : WK[d]} ${a} 开门` };
+    for (const [a] of store.hours[d]) if (k > 0 || toMin(a) > mins) return { open: false, text: tr(`已打烊 · ${k === 0 ? '今天' : k === 1 ? '明天' : WEEK[d]} ${a} 开门`, `Closed · opens ${k === 0 ? 'today' : k === 1 ? 'tomorrow' : WEEK[d]} ${a}`) };
   }
-  return { open: false, text: '已打烊' };
+  return { open: false, text: tr('已打烊', 'Closed') };
 }
 window.TF.storeStatus = storeStatus;
 window.TF.shanghaiNow = shanghaiNow;
@@ -65,8 +75,8 @@ const news = document.getElementById('news');
 if (news) news.addEventListener('submit', e => {
   e.preventDefault();
   const input = news.querySelector('input'), msg = document.getElementById('news-msg');
-  if (!input.checkValidity()) { msg.textContent = '这个邮箱地址好像不完整，再检查一下。'; msg.style.color = '#ffc2b0'; input.focus(); return; }
-  msg.style.color = ''; msg.textContent = '订阅好了。这是演示网站，不会真的发邮件。'; input.value = '';
+  if (!input.checkValidity()) { msg.textContent = tr('这个邮箱地址好像不完整，再检查一下。', 'That email address looks incomplete. Please check it.'); msg.style.color = '#ffc2b0'; input.focus(); return; }
+  msg.style.color = ''; msg.textContent = tr('订阅好了。这是演示网站，不会真的发邮件。', 'You are subscribed. This is a demo site, so no email will actually be sent.'); input.value = '';
 });
 
 /* ---------- dialogs ---------- */

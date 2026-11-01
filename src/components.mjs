@@ -1,6 +1,6 @@
 // Small markup pieces used on more than one page.
 
-export const giftCard = (amount = 500, name = '给你') => `<div class="giftcard" aria-hidden="true">
+export const giftCard = (amount, name) => `<div class="giftcard" aria-hidden="true">
   <span class="gc-top"><b>TRE FIAMME</b><i>Carta Regalo</i></span>
   <span class="gc-amt">¥<b>${amount}</b></span>
   <span class="gc-to">${name}</span>
